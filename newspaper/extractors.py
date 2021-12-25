@@ -17,6 +17,7 @@ import re
 import re
 from collections import defaultdict
 
+import datefinder
 from dateutil.parser import parse as date_parser
 from tldextract import tldextract
 from urllib.parse import urljoin, urlparse, urlunparse
@@ -178,7 +179,6 @@ class ContentExtractor(object):
         2. Pubdate from metadata
         3. Raw regex searches in the HTML + added heuristics
         """
-
         def parse_date_str(date_str):
             if date_str:
                 try:
@@ -194,7 +194,6 @@ class ContentExtractor(object):
             datetime_obj = parse_date_str(date_str)
             if datetime_obj:
                 return datetime_obj
-
         PUBLISH_DATE_TAGS = [
             {'attribute': 'property', 'value': 'rnews:datePublished',
              'content': 'content'},
@@ -231,7 +230,14 @@ class ContentExtractor(object):
                 datetime_obj = parse_date_str(date_str)
                 if datetime_obj:
                     return datetime_obj
-
+        # Logic for fetching published at for BBC
+        time_tags = doc.xpath("//header//time")
+        for time_tag in time_tags:
+            time_values = time_tag.values()
+            for time_value in time_values:
+                parsed_date = parse_date_str(time_value)
+                if parsed_date is not None:
+                    return parsed_date
         return None
 
     def get_title(self, doc):
