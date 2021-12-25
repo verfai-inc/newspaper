@@ -17,7 +17,6 @@ import re
 import re
 from collections import defaultdict
 
-import datefinder
 from dateutil.parser import parse as date_parser
 from tldextract import tldextract
 from urllib.parse import urljoin, urlparse, urlunparse
